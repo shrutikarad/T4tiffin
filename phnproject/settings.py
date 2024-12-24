@@ -80,7 +80,7 @@ DATABASES = {
         'ENGINE': 'django.db.backends.mysql',
         'NAME': 't4tiffin',  # Your database name
         'USER': 'root',  # Your MySQL username
-        'PASSWORD': 'Jay@14111',  # Your MySQL password
+        'PASSWORD': 'aiza@123',  # Your MySQL password
         'HOST': 'localhost',  # The host where the MySQL server is running
         'PORT': '3306',  # Default MySQL port
     }
