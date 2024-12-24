@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+
+    {% if orders %}
+        <div class="card">
+            <div class="card-header">
+                <h5 class="text-primary">All Orders</h5>
+            </div>
+            <div class="card-body">
+                <ul class="list-group">
+                    {% for order in orders %}
+                        <li class="list-group-item">
+                            <strong>Student:</strong> {{ order.username.student_name }} <br>
+                            <strong>Order ID:</strong> {{ order.id }} <br>
+                            <strong>Address:</strong> {{ order.address }} <br>
+                            <strong>Status:</strong> 
+                            <form action="{% url 'update_order_status' order.id %}" method="POST">
+                                {% csrf_token %}
+                                <select name="order_status" class="form-control" onchange="this.form.submit()">
+                                    {% for status, status_label in order.STATUS_CHOICES %}
+                                        <option value="{{ status }}" {% if order.order_status == status %}selected{% endif %}>
+                                            {{ status_label }}
+                                        </option>
+                                    {% endfor %}
+                                </select>
+                            </form>
+                            <strong>Additional Notes:</strong> {{ order.additional_note }} <br>
+                            <hr>
+                        </li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+    {% else %}
+        <p class="alert alert-warning">No orders found.</p>
+    {% endif %}
+
+</div>
+{% endblock %}
