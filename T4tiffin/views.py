@@ -24,9 +24,9 @@ def body(request):
     return render(request, 'base.html')
 
 
-def signup(request):
+def student_registration(request):
     if request.method == 'GET':
-        return render(request, 'signup.html')
+        return render(request, 'student_registration.html')
     elif request.method == 'POST':
         postdata = request.POST
         student_name = postdata.get('student_name')
@@ -40,7 +40,10 @@ def signup(request):
         address = postdata.get('address')
 
         if not student_name or not parent_name or not parent_phone or not standard or not division or not roll_no or not username or not password:
-            return redirect('signup', {'error': 'All fields are required!'})
+            return redirect('student_registration', {'error': 'All fields are required!'})
+        
+        school_username = request.session.get('username')
+        school = School.get_school_by_user(school_username)
 
         try:
             student = StudentRegistration.objects.create(
@@ -53,8 +56,11 @@ def signup(request):
                 roll_no = roll_no,
                 actual_password=password,
                 password=make_password(password),
-                address=address
+                address=address,
+                school_id=school.school_id
             )
+
+            
             print("Student created:", student)
 
             same_encrypt1 = make_password(str(random.randint(10000, 99999)))  # Same value for encrypt1
@@ -79,12 +85,12 @@ def signup(request):
             print("Standards created")
 
             messages.success(request, 'Registration Successful!')
-            return redirect('signup')
+            return redirect('student_registration')
 
         except Exception as e:
             print("Error occurred:", e)
             messages.error(request, 'An error occurred during registration.')
-            return redirect('signup')
+            return redirect('student_registration')
 
 
 
@@ -508,31 +514,33 @@ def schoolregistration(request):
 
     elif request.method == 'POST':
         postdata = request.POST
-
         school_name = postdata.get('school_name')
         username = postdata.get('username')
         password = postdata.get('password')
+        school_id = postdata.get('school_id')  # Capture school_id
 
-        # Check if school name or username already exists in the database
+        # Check for duplicate entries
         if School.objects.filter(school_name=school_name).exists():
             messages.error(request, "School with this name already exists.")
             return redirect('schoolregistration')
         if School.objects.filter(username=username).exists():
             messages.error(request, "Username already taken.")
             return redirect('schoolregistration')
+        if School.objects.filter(school_id=school_id).exists():
+            messages.error(request, "School ID already exists.")
+            return redirect('schoolregistration')
 
         try:
-            # Create a new school record and hash the password
+            # Create a new school record
             school = School.objects.create(
                 school_name=school_name,
                 username=username,
-                password=make_password(password)
+                password=make_password(password),
+                school_id=school_id  # Save school_id
             )
             school.save()
-
-            # Success message
             messages.success(request, "School registered successfully!")
-            return redirect('login')  # Redirect to login page after successful registration
+            return redirect('login')
 
         except Exception as e:
             messages.error(request, f"Error: {str(e)}")

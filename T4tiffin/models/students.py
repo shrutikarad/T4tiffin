@@ -1,4 +1,5 @@
 from django.db import models
+from .school import School
 
 
 class StudentRegistration(models.Model):
@@ -12,10 +13,8 @@ class StudentRegistration(models.Model):
     roll_no = models.CharField(max_length=100, default="")
     actual_password = models.CharField(max_length=100, default="")
     address = models.TextField()
-
-
-
-
+    school_id = models.ForeignKey(School, on_delete=models.CASCADE)   # Add this field
+    
 
     def register(self):
 
