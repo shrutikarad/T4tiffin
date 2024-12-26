@@ -2,23 +2,33 @@
 
 {% block content %}
 <div class="container mt-4">
+    <h3 class="text-primary">Orders Management</h3>
 
     {% if orders %}
-        <div class="card">
+        <div class="card mt-4">
             <div class="card-header">
-                <h5 class="text-primary">All Orders</h5>
+                <h5 class="text-success">Orders for Your School</h5>
             </div>
             <div class="card-body">
                 <ul class="list-group">
                     {% for order in orders %}
                         <li class="list-group-item">
-                            <strong>Student:</strong> {{ order.username.student_name }} <br>
-                            <strong>Order ID:</strong> {{ order.id }} <br>
-                            <strong>Address:</strong> {{ order.address }} <br>
-                            <strong>Status:</strong> 
-                            <form action="{% url 'update_order_status' order.id %}" method="POST">
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div>
+                                    <p><strong>Student:</strong> {{ order.username.student_name }}</p>
+                                    <p><strong>Order ID:</strong> {{ order.id }}</p>
+                                    <p><strong>Address:</strong> {{ order.address }}</p>
+                                    <p><strong>Additional Notes:</strong> {{ order.additional_note }}</p>
+                                    <p><strong>Status:</strong> {{ order.get_order_status_display }}</p>
+                                    <p><strong>Created At:</strong> {{ order.created_at|date:"d M Y H:i" }}</p>
+                                </div>
+                               
+                            </div>
+                            <hr>
+                            <form action="{% url 'update_order_status' order.id %}" method="POST" class="mt-2">
                                 {% csrf_token %}
-                                <select name="order_status" class="form-control" onchange="this.form.submit()">
+                                <label for="order_status_{{ order.id }}">Update Status:</label>
+                                <select name="order_status" id="order_status_{{ order.id }}" class="form-control" onchange="this.form.submit()">
                                     {% for status, status_label in order.STATUS_CHOICES %}
                                         <option value="{{ status }}" {% if order.order_status == status %}selected{% endif %}>
                                             {{ status_label }}
@@ -26,16 +36,13 @@
                                     {% endfor %}
                                 </select>
                             </form>
-                            <strong>Additional Notes:</strong> {{ order.additional_note }} <br>
-                            <hr>
                         </li>
                     {% endfor %}
                 </ul>
             </div>
         </div>
     {% else %}
-        <p class="alert alert-warning">No orders found.</p>
+        <p class="alert alert-warning mt-4">No orders found for your school.</p>
     {% endif %}
-
 </div>
 {% endblock %}

@@ -106,8 +106,9 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
-MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_URL = '/media/'  # URL to access media files
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')  # Directory to store media files
+
 
 STATIC_URL = '/static/'
 

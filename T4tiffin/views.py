@@ -14,7 +14,9 @@ import random
 from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
-
+from zipfile import ZipFile, ZIP_DEFLATED
+import os
+from io import BytesIO
 
 # Create your views here.
 
@@ -43,7 +45,7 @@ def student_registration(request):
             return redirect('student_registration', {'error': 'All fields are required!'})
         
         school_username = request.session.get('username')
-        school = School.get_school_by_user(school_username)
+        school = School.objects.filter(username=school_username).first()
 
         try:
             student = StudentRegistration.objects.create(
@@ -57,7 +59,7 @@ def student_registration(request):
                 actual_password=password,
                 password=make_password(password),
                 address=address,
-                school_id=school.school_id
+                school_id=school
             )
 
             
@@ -141,9 +143,36 @@ def login(request):
 
 
 def home(request):
-    pending_orders_count = Orders.objects.filter(order_status='pending').count()  # Modify the filter according to your model's structure
-    password_request = forgotpassword.objects.filter().count()
-    return render(request, 'home.html', {'pending_orders_count': pending_orders_count, 'password_request' : password_request})
+    # Check if the user is logged in and fetch their session username
+    username = request.session.get('username')
+
+    if not username:
+        # Redirect to login if not logged in
+        messages.warning(request, "Please log in to access the home page.")
+        return redirect('login')
+
+    # Check if the logged-in user is a school
+    school = School.objects.filter(username=username).first()
+
+    if school:
+        # Get the count of pending orders for the school
+        pending_orders_count = Orders.objects.filter(
+            username__school_id=school, 
+            order_status='pending'
+        ).count()
+
+        # Get the count of all password reset requests
+        password_request = forgotpassword.objects.all().count()
+
+        # Render the home page with the counts
+        return render(request, 'home.html', {
+            'pending_orders_count': pending_orders_count,
+            'password_request': password_request
+        })
+    else:
+        # If not a school, handle invalid access (optional)
+        messages.error(request, "Invalid user type. Access denied.")
+        return redirect('login')
 
 
 def orders(request):
@@ -154,8 +183,8 @@ def orders(request):
         school = School.objects.filter(username=username).first()
 
         if school:
-            # If the user is a school, show all orders
-            orders = Orders.objects.all()
+            # Fetch orders for students linked to the current school
+            orders = Orders.objects.filter(username__school_id=school)
             return render(request, 'orders.html', {'orders': orders, 'is_student': False})
 
         else:
@@ -165,6 +194,8 @@ def orders(request):
     else:
         messages.warning(request, 'Please log in to view orders!')
         return redirect('login')
+
+
 
 
 
@@ -200,17 +231,29 @@ def update_order_status(request, order_id):
 
 
 def registered(request, standard_id=None):
-    # Fetch all standards for the sidebar
-    standards = Standards.objects.values_list('standard', flat=True).distinct()
+    # Fetch the current school's username from session
+    school_username = request.session.get('username')
+    
+    # Get the current school instance
+    school = School.objects.filter(username=school_username).first()
+
+    if not school:
+        # If no school is found, redirect to login
+        messages.error(request, 'Invalid session. Please login again.')
+        return redirect('login')
+
+    # Fetch all unique standards for the current school
+    standards = StudentRegistration.objects.filter(school_id=school).values_list('standard', flat=True).distinct()
 
     # Get selected standard from query params
-    standard_name = request.GET.get('standard_id', None)  # Get from query params
+    standard_name = request.GET.get('standard_id', None)
 
     if standard_name:
-        # Fetch students based on standard
-        students = StudentRegistration.objects.filter(standard=standard_name)
+        # Fetch students based on standard and school
+        students = StudentRegistration.objects.filter(standard=standard_name, school_id=school)
     else:
-        students = []
+        # Fetch all students for the current school if no standard is selected
+        students = StudentRegistration.objects.filter(school_id=school)
 
     context = {
         'standards': standards,
@@ -545,3 +588,66 @@ def schoolregistration(request):
         except Exception as e:
             messages.error(request, f"Error: {str(e)}")
             return redirect('schoolregistration')
+
+
+def delete_student(request, student_id):
+    if request.method == 'POST':
+        # Fetch the student to delete
+        student = StudentRegistration.objects.get(id=student_id)
+
+        # Delete related orders
+        Orders.objects.filter(username=student).delete()
+
+        # Now delete the student
+        student.delete()
+
+        messages.success(request, "Student and related orders deleted successfully!")
+        return redirect('registered')
+    else:
+        messages.error(request, "Invalid request method!")
+        return redirect('registered')
+    
+
+def download_student(request, student_id):
+    student = StudentRegistration.objects.get(id=student_id)
+
+    # Get the QR codes related to this student
+    qrcodes = Qrcodes.objects.filter(username=student)
+
+    # Render a page to display QR codes
+    return render(request, 'show_qr_codes.html', {'student': student, 'qrcodes': qrcodes})
+
+
+def download_permanent_qr(request, qr_id):
+    # Fetch the QR code object by ID
+    qr_code = Qrcodes.objects.get(id=qr_id)
+
+    # Path to the permanent QR code
+    qr_file_path = qr_code.parmanantqr.path
+
+    # Open and serve the file as download
+    with open(qr_file_path, 'rb') as file:
+        response = HttpResponse(file.read(), content_type='image/png')
+        response['Content-Disposition'] = f'attachment; filename={qr_code.username.username}_permanent_qr.png'
+        return response
+
+def download_multiple_qrs(request, student_id):
+    # Fetch all multiple QR codes related to this student
+    qrcodes = Qrcodes.objects.filter(username_id=student_id)
+
+    # Create a zip file in memory
+    zip_buffer = BytesIO()
+    with ZipFile(zip_buffer, 'w', ZIP_DEFLATED) as zip_file:
+        for qr in qrcodes:
+            if qr.multiple:
+                qr_path = qr.multiple.path
+                qr_filename = f'{qr.username.username}_multiple_qr_{qr.id}.png'
+
+                # Add QR image to the zip file
+                zip_file.write(qr_path, qr_filename)
+
+    # Create the response for downloading the zip file
+    zip_buffer.seek(0)
+    response = HttpResponse(zip_buffer, content_type='application/zip')
+    response['Content-Disposition'] = 'attachment; filename=multiple_qr_codes.zip'
+    return response

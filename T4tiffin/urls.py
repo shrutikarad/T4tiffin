@@ -26,6 +26,10 @@ urlpatterns = [
     path('about', views.about, name = 'about'),
     path('profile', views.profile, name = 'profile'),
     path('schoolregistration', views.schoolregistration, name = 'schoolregistration'),
+    path('download_student/<int:student_id>/', views.download_student, name='download_student'),
+    path('download/permanent_qr/<int:qr_id>/', views.download_permanent_qr, name='download_permanent_qr'),
+    path('download/multiple_qrs/<int:student_id>/', views.download_multiple_qrs, name='download_multiple_qrs'),
+    path('delete_student/<int:student_id>/', views.delete_student, name='delete_student'),
     path('update_order_status/<int:order_id>/', views.update_order_status, name='update_order_status'),  # Update order status
 ]
 
