@@ -2,6 +2,8 @@
 
 {% block title %}Contact - T4tiffin{% endblock %}
 
+{% load static %}
+
 {% block content %}
 <!-- Contact Page Section -->
 <div class="container mt-5">
@@ -41,6 +43,15 @@
     </div>
 </div>
 
+<style>
+    /* Set the background image */
+    body {
+        background-image: url("{% static 'images/contact.jpg' %}");
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+    }
+</style>
 <!-- Custom Section with Background -->
 <section class="bg-dark text-white p-5 mt-5">
     <div class="container text-center">

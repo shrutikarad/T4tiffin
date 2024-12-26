@@ -1,8 +1,10 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block content %}
 <div class="container mt-4">
-    <h3 class="text-primary">Orders Management</h3>
+    <h3 class="text-primary">.</h3>
 
     {% if orders %}
         <div class="card mt-4">
@@ -45,4 +47,15 @@
         <p class="alert alert-warning mt-4">No orders found for your school.</p>
     {% endif %}
 </div>
+
+<style>
+    /* Set the background image */
+    body {
+        background-image: url("{% static 'images/order.jpg' %}");
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+    }
+</style>
+
 {% endblock %}

@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 {% block title %}Registered - T4tiffin{% endblock %}
-
+{% load static  %}}
 {% block content %}
 <div class="container mt-4">
     <div class="row">
@@ -88,4 +88,15 @@
         <a href="/home" class="btn btn-primary btn-lg">Go to Home</a>
     </div>
 </div>
+
+<style>
+    /* Set the background image */
+    body {
+        background-image: url("{% static 'images/registered.jpg' %}");
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+    }
+</style>
+
 {% endblock %}

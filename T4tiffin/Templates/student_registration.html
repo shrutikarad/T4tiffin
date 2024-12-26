@@ -2,6 +2,8 @@
 
 {% block title %}Home - T4tiffin{% endblock %}
 
+{% load static  %}
+
 {% block content %}
 <div class="container mt-4">
 
@@ -99,6 +101,16 @@
         </div>
     </div>
 </div>
+
+<style>
+    /* Set the background image */
+    body {
+        background-image: url("{% static 'images/students_registration.jpg' %}");
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+    }
+</style>
 
 <script>
     // Hide success or error messages after 3 seconds
