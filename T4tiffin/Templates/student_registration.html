@@ -3,8 +3,19 @@
 {% block title %}Home - T4tiffin{% endblock %}
 
 {% block content %}
-
 <div class="container mt-4">
+
+    <!-- Display Messages -->
+    {% if messages %}
+        <div class="col-lg-6 mx-auto">
+            {% for message in messages %}
+                <div class="alert alert-{{ message.z }} alert-dismissible fade show text-center small-message" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        </div>
+    {% endif %}
 
     <div class="p-5 m-4 shadow-lg rounded">
 
@@ -16,9 +27,8 @@
             </div>
 
             <form action="/student_registration/" method="POST">
-                
                 {% csrf_token %}
-                
+
                 <!-- Student Name -->
                 <div class="form-group">
                     <label for="student_name" class="font-weight-bold">Student Name</label>
@@ -79,7 +89,6 @@
                 <div class="form-group text-center">
                     <input class="btn btn-info btn-lg px-5 py-3" type="submit" value="Register">
                 </div>
-
             </form>
 
             <!-- Back to Home Button -->

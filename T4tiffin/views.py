@@ -41,11 +41,22 @@ def student_registration(request):
         password = postdata.get('password')
         address = postdata.get('address')
 
-        if not student_name or not parent_name or not parent_phone or not standard or not division or not roll_no or not username or not password:
-            return redirect('student_registration', {'error': 'All fields are required!'})
+        # Form validation
+        if not all([student_name, parent_name, parent_phone, standard, division, roll_no, username, password]):
+            z = messages.error(request, 'All fields are required!')
+            return redirect('student_registration')
         
         school_username = request.session.get('username')
         school = School.objects.filter(username=school_username).first()
+
+        if not school:
+            z = messages.error(request, 'School not found or session expired.')
+            return redirect('student_registration')
+        
+        # Check if username already exists for this school
+        if StudentRegistration.objects.filter(username=username, school_id=school).exists():
+            z = messages.error(request, 'Username already exists for this school.')
+            return redirect('student_registration')
 
         try:
             student = StudentRegistration.objects.create(
@@ -55,7 +66,7 @@ def student_registration(request):
                 standard=standard,
                 division=division,
                 username=username,
-                roll_no = roll_no,
+                roll_no=roll_no,
                 actual_password=password,
                 password=make_password(password),
                 address=address,
@@ -86,12 +97,12 @@ def student_registration(request):
             )
             print("Standards created")
 
-            messages.success(request, 'Registration Successful!')
+            z = messages.success(request, 'Registration Successful!')
             return redirect('student_registration')
 
         except Exception as e:
             print("Error occurred:", e)
-            messages.error(request, 'An error occurred during registration.')
+            z = messages.error(request, 'An error occurred during registration.')
             return redirect('student_registration')
 
 
@@ -162,12 +173,10 @@ def home(request):
         ).count()
 
         # Get the count of all password reset requests
-        password_request = forgotpassword.objects.all().count()
 
         # Render the home page with the counts
         return render(request, 'home.html', {
-            'pending_orders_count': pending_orders_count,
-            'password_request': password_request
+            'pending_orders_count': pending_orders_count
         })
     else:
         # If not a school, handle invalid access (optional)
@@ -608,7 +617,7 @@ def delete_student(request, student_id):
         return redirect('registered')
     
 
-def download_student(request, student_id):
+def view_student(request, student_id):
     student = StudentRegistration.objects.get(id=student_id)
 
     # Get the QR codes related to this student

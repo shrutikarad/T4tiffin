@@ -237,7 +237,9 @@
                         videoElement1.classList.add('hidden'); // Hide the first video element
                         videoElement2.classList.remove('hidden'); // Show the second video element
                         inputField2.classList.remove('hidden'); // Show the second input field
-                        startScanner2(); // Start scanning for the second QR code
+                        setTimeout(() => { // Delay the second scanner by 2 seconds
+                            startScanner2(); // Start scanning for the second QR code after 2 seconds
+                        }, 2000); // 2000 milliseconds = 2 seconds
                     }
                 }
             }

@@ -16,7 +16,7 @@
                             <img src="{{ qr.parmanantqr.url }}" class="card-img-top img-fluid rounded" alt="Permanent QR Code">
                             <div class="card-body text-center">
                                 <h5 class="card-title text-primary">Main QR Code</h5>
-                                <p class="card-text text-muted">{{ student.student_name }} - QR {{ qr.id }}</p>
+                                <p class="card-text text-muted">{{ student.student_name }} - QR</p>
                                 <a href="{% url 'download_permanent_qr' qr.id %}" class="btn btn-primary w-100">Download QR Code</a>
                             </div>
                         </div>
