@@ -8,7 +8,7 @@
 <div class="container mt-5">
     {% if student %}
         <div class="card shadow-lg rounded-lg">
-            <div class="card-header text-center bg-gradient text-white">
+            <div class="card-header text-center bg-gradient text-black">
                 <h3 class="mb-0">Student Profile</h3>
             </div>
             <div class="card-body profile-card-body">
@@ -46,6 +46,10 @@
             <a href="/login" class="btn btn-primary btn-sm">Go to Login</a>
         </div>
     {% endif %}
+    <!-- Back to Home Button -->
+    <div class="text-center mt-3">
+        <a href="{% url 'parent_dashboard' %}" class="btn btn-secondary btn-lg">Back to Dashboard</a>
+    </div>
 </div>
 
 <style>

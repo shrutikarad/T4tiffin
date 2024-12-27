@@ -27,13 +27,14 @@
                     </div>
                 {% endif %}
 
-                <form action="/schoolregistration" method="POST">
+                <form action="/schoolregistration" method="POST" id="schoolRegistrationForm">
                     {% csrf_token %}
 
                     <!-- School Name -->
                     <div class="form-group">
                         <label for="school_name" class="font-weight-bold">School Name</label>
                         <input type="text" name="school_name" id="school_name" class="form-control form-control-lg" placeholder="Enter school name" required>
+                        <small class="text-danger" id="schoolNameError"></small>
                     </div>
 
                     <!-- Username -->
@@ -44,14 +45,16 @@
 
                     <!-- school Id -->
                     <div class="form-group">
-                        <label for="school_id" class="font-weight-bold">school_id</label>
-                        <input type="text" name="school_id" id="school_id" class="form-control form-control-lg" placeholder="Enter school_id" required>
+                        <label for="school_id" class="font-weight-bold">School ID</label>
+                        <input type="number" name="school_id" id="school_id" class="form-control form-control-lg" placeholder="Enter school ID" required>
+                        <small class="text-danger" id="schoolIdError"></small>
                     </div>
 
                     <!-- Password -->
                     <div class="form-group">
                         <label for="password" class="font-weight-bold">Password</label>
                         <input type="password" name="password" id="password" class="form-control form-control-lg" placeholder="********" required>
+                        <small class="text-danger" id="passwordError"></small>
                     </div>
 
                     <!-- Submit Button -->
@@ -73,5 +76,43 @@
             background-attachment: fixed;
         }
     </style>
+
+    <script>
+        document.getElementById('schoolRegistrationForm').addEventListener('submit', function(event) {
+            let isValid = true;
+
+            // Field values
+            const schoolName = document.getElementById('school_name').value;
+            const schoolId = document.getElementById('school_id').value;
+            const password = document.getElementById('password').value;
+
+            // Regular expressions
+            const nameRegex = /^[A-Za-z\s]+$/;
+            const passwordRegex = /^(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+
+            // Clear previous errors
+            document.querySelectorAll('.text-danger').forEach(el => el.textContent = '');
+
+            // Validation
+            if (!nameRegex.test(schoolName)) {
+                document.getElementById('schoolNameError').textContent = 'School name must contain only alphabets and spaces.';
+                isValid = false;
+            }
+
+            if (!schoolId) {
+                document.getElementById('schoolIdError').textContent = 'School ID must be numeric.';
+                isValid = false;
+            }
+
+            if (!passwordRegex.test(password)) {
+                document.getElementById('passwordError').textContent = 'Password must be at least 8 characters, contain 1 uppercase letter, 1 number, and 1 special character.';
+                isValid = false;
+            }
+
+            if (!isValid) {
+                event.preventDefault();
+            }
+        });
+    </script>
 
 {% endblock %}
