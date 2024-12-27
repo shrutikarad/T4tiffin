@@ -2,6 +2,8 @@
 
 {% block title %}Student Profile - T4tiffin{% endblock %}
 
+{% load static %}
+
 {% block content %}
 <div class="container mt-5">
     {% if student %}
@@ -47,6 +49,14 @@
 </div>
 
 <style>
+    
+    body {
+        background-image: url("{% static 'images/contact2.jpg' %}");
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+    }
+    
     .card {
         border-radius: 20px;
         overflow: hidden;

@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load static %}
+
 {% block title %}Your Orders - T4tiffin{% endblock %}
 
 {% block content %}
@@ -58,6 +60,14 @@
 </div>
 
 <style>
+
+    /* Set the background image */
+    body {
+        background-image: url("{% static 'images/order.jpg' %}");
+        background-size: cover;
+        background-position: center center;
+        background-attachment: fixed;
+    }
     /* Table Styling */
     .table {
         border-collapse: separate;
