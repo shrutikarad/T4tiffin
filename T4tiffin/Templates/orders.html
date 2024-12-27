@@ -37,15 +37,25 @@
                                         </option>
                                     {% endfor %}
                                 </select>
+
+                                  
                             </form>
                         </li>
                     {% endfor %}
+                    
                 </ul>
+                
             </div>
+                       
         </div>
+       
     {% else %}
         <p class="alert alert-warning mt-4">No orders found for your school.</p>
     {% endif %}
+    <!-- Go to Home Button -->
+    <div class="text-center mt-4">
+        <a href="/home" class="btn btn-primary btn-lg">Go to Dashboard</a>
+    </div>
 </div>
 
 <style>
