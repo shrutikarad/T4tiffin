@@ -24,9 +24,9 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-b5@q=wjf5$)58h1c$!-@%zdajuu5vp03++e9fpi7yk$ma5owfx'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'T4tiffin',
+    'witnoise.runserver_nostatic',
 ]
 
 MIDDLEWARE = [
@@ -49,6 +50,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'whitenoise.middalware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'phnproject.urls'
@@ -78,7 +80,7 @@ WSGI_APPLICATION = 'phnproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 't4tiffin',  # Your database name
+        'NAME': 't4tiffin2',  # Your database name
         'USER': 'root',  # Your MySQL username
         'PASSWORD': 'Itact#11',  # Your MySQL password
         'HOST': 'localhost',  # The host where the MySQL server is running
@@ -138,3 +140,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
