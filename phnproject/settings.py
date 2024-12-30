@@ -39,7 +39,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'T4tiffin',
-    'whitenoise.runserver_nostatic',
 ]
 
 MIDDLEWARE = [
@@ -50,7 +49,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middalware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'phnproject.urls'
@@ -58,7 +56,7 @@ ROOT_URLCONF = 'phnproject.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')],
+        'DIRS': [os.path.join(BASE_DIR,'T4tiffin','Templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -80,7 +78,7 @@ WSGI_APPLICATION = 'phnproject.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 't4tiffin2',  # Your database name
+        'NAME': 't4tiffin',  # Your database name
         'USER': 'root',  # Your MySQL username
         'PASSWORD': 'Itact#11',  # Your MySQL password
         'HOST': 'localhost',  # The host where the MySQL server is running
