@@ -18,11 +18,13 @@
 
                 <!-- Display Success or Error Messages -->
                 {% if messages %}
-                    {% for message in messages %}
-                    <div class="alert alert-{{ message.tags }} text-center" role="alert">
-                        {{ message }}
+                    <div id="message-container">
+                        {% for message in messages %}
+                        <div class="alert alert-{{ message.tags }} text-center" role="alert">
+                            {{ message }}
+                        </div>
+                        {% endfor %}
                     </div>
-                    {% endfor %}
                 {% endif %}
 
                 <form action="/changepass" method="POST" id="changePasswordForm">
@@ -110,6 +112,13 @@
                 event.preventDefault();
             }
         });
-    </script>
 
+        // Hide messages after 3 seconds
+        setTimeout(function() {
+            const messageContainer = document.getElementById('message-container');
+            if (messageContainer) {
+                messageContainer.style.display = 'none';
+            }
+        }, 3000);
+    </script>
 {% endblock %}

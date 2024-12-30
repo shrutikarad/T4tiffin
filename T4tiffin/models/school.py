@@ -5,6 +5,9 @@ class School(models.Model):
     username = models.CharField(max_length=100, unique=True)
     password = models.CharField(max_length=100)
     school_name = models.CharField(max_length=100)
+    email = models.CharField(max_length=100, default='')
+    contact = models.CharField(max_length=10, default='')
+    address = models.CharField(max_length=100, default='')
 
     @staticmethod
     def get_school_by_user(username):

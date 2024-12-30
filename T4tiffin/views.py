@@ -27,83 +27,90 @@ def body(request):
 
 
 def student_registration(request):
-    if request.method == 'GET':
-        return render(request, 'student_registration.html')
-    elif request.method == 'POST':
-        postdata = request.POST
-        student_name = postdata.get('student_name')
-        parent_name = postdata.get('parent_name')
-        parent_phone = postdata.get('phone')
-        standard = postdata.get('standard')
-        division = postdata.get('division')
-        roll_no = postdata.get('roll_no')
-        username = postdata.get('Username') 
-        password = postdata.get('password')
-        address = postdata.get('address')
+    username = request.session.get('username')
 
-        # Form validation
-        if not all([student_name, parent_name, parent_phone, standard, division, roll_no, username, password]):
-            z = messages.error(request, 'All fields are required!')
-            return redirect('student_registration')
-        
-        school_username = request.session.get('username')
-        school = School.objects.filter(username=school_username).first()
+    if username:
 
-        if not school:
-            z = messages.error(request, 'School not found or session expired.')
-            return redirect('student_registration')
-        
-        # Check if username already exists for this school
-        if StudentRegistration.objects.filter(username=username, school_id=school).exists():
-            z = messages.error(request, 'Username already exists for this school.')
-            return redirect('student_registration')
+        if request.method == 'GET':
+            return render(request, 'student_registration.html')
+        elif request.method == 'POST':
+            postdata = request.POST
+            student_name = postdata.get('student_name')
+            parent_name = postdata.get('parent_name')
+            parent_phone = postdata.get('phone')
+            standard = postdata.get('standard')
+            division = postdata.get('division')
+            roll_no = postdata.get('roll_no')
+            username = postdata.get('Username') 
+            password = postdata.get('password')
+            address = postdata.get('address')
 
-        try:
-            student = StudentRegistration.objects.create(
-                student_name=student_name,
-                parent_name=parent_name,
-                parent_phone=parent_phone,
-                standard=standard,
-                division=division,
-                username=username,
-                roll_no=roll_no,
-                actual_password=password,
-                password=make_password(password),
-                address=address,
-                school_id=school
-            )
-
+            # Form validation
+            if not all([student_name, parent_name, parent_phone, standard, division, roll_no, username, password]):
+                z = messages.error(request, 'All fields are required!')
+                return redirect('student_registration')
             
-            print("Student created:", student)
+            school_username = request.session.get('username')
+            school = School.objects.filter(username=school_username).first()
 
-            same_encrypt1 = make_password(str(random.randint(10000, 99999)))  # Same value for encrypt1
-            print("Same encrypt1 value:", same_encrypt1)
+            if not school:
+                z = messages.error(request, 'School not found or session expired.')
+                return redirect('student_registration')
+            
+            # Check if username already exists for this school
+            if StudentRegistration.objects.filter(username=username, school_id=school).exists():
+                z = messages.error(request, 'Username already exists for this school.')
+                return redirect('student_registration')
 
-            for i in range(10):  # Create 10 rows with unique encrypt2
-                encrypt2_value = make_password(str(random.randint(10000, 99999)))
-                print(f"Creating QRCode {i+1}: encrypt1={same_encrypt1}, encrypt2={encrypt2_value}")
-                
-                Qrcodes.objects.create(
-                    username=student,
-                    encrypt1=same_encrypt1,
-                    encrypt2=encrypt2_value
+            try:
+                student = StudentRegistration.objects.create(
+                    student_name=student_name,
+                    parent_name=parent_name,
+                    parent_phone=parent_phone,
+                    standard=standard,
+                    division=division,
+                    username=username,
+                    roll_no=roll_no,
+                    actual_password=password,
+                    password=make_password(password),
+                    address=address,
+                    school_id=school
                 )
 
-            print("10 Qrcodes rows created successfully")
+                
+                print("Student created:", student)
 
-            Standards.objects.create(
-                username=student,
-                standard=standard
-            )
-            print("Standards created")
+                same_encrypt1 = make_password(str(random.randint(10000, 99999)))  # Same value for encrypt1
+                print("Same encrypt1 value:", same_encrypt1)
 
-            z = messages.success(request, 'Registration Successful!')
-            return redirect('student_registration')
+                for i in range(10):  # Create 10 rows with unique encrypt2
+                    encrypt2_value = make_password(str(random.randint(10000, 99999)))
+                    print(f"Creating QRCode {i+1}: encrypt1={same_encrypt1}, encrypt2={encrypt2_value}")
+                    
+                    Qrcodes.objects.create(
+                        username=student,
+                        encrypt1=same_encrypt1,
+                        encrypt2=encrypt2_value
+                    )
 
-        except Exception as e:
-            print("Error occurred:", e)
-            z = messages.error(request, 'An error occurred during registration.')
-            return redirect('student_registration')
+                print("10 Qrcodes rows created successfully")
+
+                Standards.objects.create(
+                    username=student,
+                    standard=standard
+                )
+                print("Standards created")
+
+                z = messages.success(request, 'Registration Successful!')
+                return redirect('student_registration')
+
+            except Exception as e:
+                print("Error occurred:", e)
+                z = messages.error(request, 'An error occurred during registration.')
+                return redirect('student_registration')
+    else:
+        messages.warning(request, 'Please log in to student registration!')
+        return redirect('login')
 
 
 
@@ -281,38 +288,44 @@ def track_orders(request):
 
 
 def place_order(request):
-    if request.method == 'POST':
-        username = request.session.get('username')
-        
-        if username:
-            student = StudentRegistration.objects.get(username=username)
+    username = request.session.get('username')
+    if username:
+
+        if request.method == 'POST':
+            username = request.session.get('username')
             
-            if student:
-                postdata = request.POST
-                address = postdata.get('address')
-                additional_note = postdata.get('additional_notes')
-            
-
-                code = str(random.randint(10000, 99999))
+            if username:
+                student = StudentRegistration.objects.get(username=username)
                 
-                encrypt = make_password(code)
-
-                # Create a new order and save it
-                order = Orders(username=student, address=address, additional_note=additional_note, code = code, encrypt = encrypt)
-                order.save()
-
-                print(encrypt)
-
-                # Redirect to the view_orders page after placing the order
-                c = messages.success(request, 'Your order has been placed successfully!')
-                return redirect('view_orders')  # Redirect to view orders page
+                if student:
+                    postdata = request.POST
+                    address = postdata.get('address')
+                    additional_note = postdata.get('additional_notes')
                 
+
+                    code = str(random.randint(10000, 99999))
+                    
+                    encrypt = make_password(code)
+
+                    # Create a new order and save it
+                    order = Orders(username=student, address=address, additional_note=additional_note, code = code, encrypt = encrypt)
+                    order.save()
+
+                    print(encrypt)
+
+                    # Redirect to the view_orders page after placing the order
+                    c = messages.success(request, 'Your order has been placed successfully!')
+                    return redirect('view_orders')  # Redirect to view orders page
+                    
+                else:
+                    messages.error(request, 'Student not found!')
             else:
-                messages.error(request, 'Student not found!')
-        else:
-            messages.warning(request, 'Please log in to place an order.')
+                messages.warning(request, 'Please log in to place an order.')
 
-    return render(request,'place_order.html')
+        return render(request,'place_order.html')
+    else:
+        messages.warning(request, 'Please log in to place order.')
+        return render(request, 'login.html')
 
 
 
@@ -448,41 +461,53 @@ def startpage(request):
     return render(request, 'startpage.html')
 
 def scanner(request):
-    return render(request, 'cam.html')
+    username = request.session.get('username')
+    if username:
+        return render(request, 'cam.html')
+    else:
+        messages.warning(request, 'Please log in to Scan!')
+        return redirect('login')
 
 
 
 def changepass(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        previous_password = request.POST.get('previous_password')
-        new_password = request.POST.get('new_password')
-        conform_password = request.POST.get('conform_password')
+    username = request.session.get('username')
 
-        # Check if user exists
-        user = School.get_school_by_user(username)
-        if not user:
-            messages.error(request, "Invalid Username.")
+    if username:
+
+        if request.method == 'POST':
+            username = request.POST.get('username')
+            previous_password = request.POST.get('previous_password')
+            new_password = request.POST.get('new_password')
+            conform_password = request.POST.get('conform_password')
+
+            # Check if user exists
+            user = School.get_school_by_user(username)
+            if not user:
+                t = messages.error(request, "Invalid Username.")
+                return redirect('/changepass')
+
+            # Validate previous password
+            if not (previous_password, user.password):
+                t = messages.error(request, "Previous password is incorrect.")
+                return redirect('/changepass')
+
+            # Check if new password and confirm password match
+            if new_password != conform_password:
+                t = messages.error(request, "New password and Confirm password do not match.")
+                return redirect('/changepass')
+
+            # Hash the new password and update
+            user.password = make_password(new_password)
+            user.save()
+
+            t = messages.success(request, "Password changed successfully!")
             return redirect('/changepass')
 
-        # Validate previous password
-        if not (previous_password, user.password):
-            messages.error(request, "Previous password is incorrect.")
-            return redirect('/changepass')
-
-        # Check if new password and confirm password match
-        if new_password != conform_password:
-            messages.error(request, "New password and Confirm password do not match.")
-            return redirect('/changepass')
-
-        # Hash the new password and update
-        user.password = make_password(new_password)
-        user.save()
-
-        messages.success(request, "Password changed successfully!")
-        return redirect('/changepass')
-
-    return render(request, 'changepass.html')
+        return render(request, 'changepass.html')
+    else:
+        messages.warning(request, 'Please log in to change passwrord!')
+        return redirect('login')
 
 
 
@@ -568,8 +593,12 @@ def schoolregistration(request):
         postdata = request.POST
         school_name = postdata.get('school_name')
         username = postdata.get('username')
+        Email = postdata.get('Email')
         password = postdata.get('password')
+        contact = postdata.get('contact')
         school_id = postdata.get('school_id')  # Capture school_id
+        address = postdata.get('Address')
+
 
         # Check for duplicate entries
         if School.objects.filter(school_name=school_name).exists():
@@ -581,6 +610,10 @@ def schoolregistration(request):
         if School.objects.filter(school_id=school_id).exists():
             messages.error(request, "School ID already exists.")
             return redirect('schoolregistration')
+        if School.objects.filter(contact=contact).exists():
+            messages.error(request, "Contact already exists.")
+            return redirect('schoolregistration')
+        
 
         try:
             # Create a new school record
@@ -588,7 +621,11 @@ def schoolregistration(request):
                 school_name=school_name,
                 username=username,
                 password=make_password(password),
-                school_id=school_id  # Save school_id
+                school_id=school_id,  # Save school_id
+                contact = contact,
+                address = address,
+                email = Email
+
             )
             school.save()
             messages.success(request, "School registered successfully!")
@@ -607,7 +644,7 @@ def delete_student(request, student_id):
         # Delete related orders
         Orders.objects.filter(username=student).delete()
 
-        # Now delete the student
+        # Now delete the student 
         student.delete()
 
         messages.success(request, "Student and related orders deleted successfully!")
