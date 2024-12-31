@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'T4tiffin',
+    'whitenoise.runserver_nostatic', 
 ]
 
 MIDDLEWARE = [
