@@ -15,7 +15,6 @@ from django.http import JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 import json
 from zipfile import ZipFile, ZIP_DEFLATED
-import os
 from io import BytesIO
 
 # Create your views here.
