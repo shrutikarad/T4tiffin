@@ -15,4 +15,3 @@ qrcode==8.0
 sqlparse==0.5.2
 tzdata==2024.2
 virtualenv==20.28.0
-python==3.11.9
